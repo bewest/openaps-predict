@@ -69,8 +69,8 @@ def ceil_datetime_at_minute_interval(timestamp, minute):
 
 
 def glucose_data_tuple(glucose_entry):
-    return (
-        glucose_entry.get('date') or glucose_entry['display_time'],
+    dt = glucose_entry.get('dateString', glucose_entry.get('date')) or glucose_entry['display_time']
+    return (dt,
         glucose_entry.get('sgv') or glucose_entry.get('amount') or glucose_entry['glucose']
     )
 

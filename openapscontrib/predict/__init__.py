@@ -74,6 +74,21 @@ def _opt_json_file(filename):
     if filename:
         return _json_file(filename)
 
+from dateutil.tz import gettz
+
+def make_naive(value, timezone=None):
+    """
+    Makes an aware datetime.datetime naive in a given time zone.
+    """
+    if timezone is None:
+        timezone = gettz()
+    # If `value` is naive, astimezone() will raise a ValueError,
+    # so we don't need to perform a redundant check.
+    value = value.astimezone(timezone)
+    if hasattr(timezone, 'normalize'):
+        # This method is available for pytz time zones.
+        value = timezone.normalize(value)
+    return value.replace(tzinfo=None)
 
 # noinspection PyPep8Naming
 class scheiner_carb_effect(Use):
@@ -409,7 +424,8 @@ class glucose(Use):
 
         if len(recent_glucose) > 0:
             glucose_file_time = datetime.fromtimestamp(os.path.getmtime(params['glucose']))
-            last_glucose_datetime = parse(glucose_data_tuple(recent_glucose[0])[0])
+            # here
+            last_glucose_datetime = make_naive(parse(glucose_data_tuple(recent_glucose[0])[0]))
             assert abs(glucose_file_time - last_glucose_datetime) < timedelta(minutes=15), \
                 'Glucose data is more than 15 minutes old'
 
