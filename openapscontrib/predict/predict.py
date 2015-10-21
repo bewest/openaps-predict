@@ -1,6 +1,7 @@
 from collections import defaultdict
 import datetime
 from dateutil.parser import parse
+from dateutil.tz import gettz
 import math
 from operator import add
 
@@ -510,6 +511,8 @@ def future_glucose(
     if len(normalized_history) > 0:
         last_history_event = sorted(normalized_history, key=lambda e: e['end_at'])[-1]
         last_history_datetime = parse(last_history_event['end_at'])
+        if last_history_datetime.tzinfo == None:
+          last_history_datetime = last_history_datetime.replace(tzinfo=gettz( ))
         simulation_end = max(simulation_end, last_history_datetime)
 
     simulation_end += datetime.timedelta(minutes=(insulin_action_curve * 60 + sensor_delay))
